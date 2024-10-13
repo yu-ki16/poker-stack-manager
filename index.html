@@ -148,7 +148,145 @@
     </div>
 
     <script>
-        // 以前のJavaScriptコードをここに配置します（変更なし）
+        let stackInputs = [];
+        
+        // テーブルの行を動的に生成
+        const tableBody = document.getElementById('stackTable');
+        for (let i = 1; i <= 9; i++) {
+            const row = tableBody.insertRow();
+            row.innerHTML = `
+                <td>シート${i}</td>
+                <td><input type="number" id="stack${i}" placeholder="スタック額を入力"></td>
+                <td id="bbCount${i}"></td>
+                <td id="averageRatio${i}"></td>
+                <td><textarea id="memo${i}" placeholder="メモを入力"></textarea></td>
+            `;
+            stackInputs.push(document.getElementById(`stack${i}`));
+        }
+
+        function calculateAll() {
+            calculateBB();
+            calculateAverageRatio();
+        }
+
+        function calculateBB() {
+            const bb = parseFloat(document.getElementById('bb').value);
+            
+            if (isNaN(bb) || bb === 0) {
+                alert('有効なBB値を入力してください。');
+                return;
+            }
+            
+            for (let i = 1; i <= 9; i++) {
+                const stack = parseFloat(document.getElementById(`stack${i}`).value);
+                const bbCountElement = document.getElementById(`bbCount${i}`);
+                
+                if (isNaN(stack)) {
+                    bbCountElement.textContent = '-';
+                } else {
+                    const bbCount = stack / bb;
+                    bbCountElement.textContent = bbCount.toFixed(2);
+                }
+            }
+        }
+
+        function calculateAverageRatio() {
+            const averageStack = parseFloat(document.getElementById('averageStack').value);
+            
+            if (isNaN(averageStack) || averageStack === 0) {
+                alert('有効な平均スタック値を入力してください。');
+                return;
+            }
+            
+            for (let i = 1; i <= 9; i++) {
+                const stack = parseFloat(document.getElementById(`stack${i}`).value);
+                const averageRatioElement = document.getElementById(`averageRatio${i}`);
+                
+                if (isNaN(stack)) {
+                    averageRatioElement.textContent = '-';
+                } else {
+                    const ratio = stack / averageStack;
+                    averageRatioElement.textContent = ratio.toFixed(2) + 'x';
+                }
+            }
+        }
+
+        // タイマー機能
+        let timerInterval;
+        let timeLeft = 20 * 60; // デフォルトは20分
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timer').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function setTimer() {
+            const minutes = parseInt(document.getElementById('timerMinutes').value);
+            if (isNaN(minutes) || minutes < 1) {
+                alert('有効な分数を入力してください。');
+                return;
+            }
+            timeLeft = minutes * 60;
+            updateTimerDisplay();
+        }
+
+        function startTimer() {
+            if (!timerInterval) {
+                timerInterval = setInterval(() => {
+                    if (timeLeft > 0) {
+                        timeLeft--;
+                        updateTimerDisplay();
+                    } else {
+                        clearInterval(timerInterval);
+                        showTimerMessage('時間切れです。BBを更新してください。');
+                        disableStackInputs();
+                    }
+                }, 1000);
+            }
+        }
+
+        function pauseTimer() {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            setTimer(); // 現在設定されている時間でリセット
+            enableStackInputs();
+            clearTimerMessage();
+        }
+
+        function disableStackInputs() {
+            stackInputs.forEach(input => {
+                input.disabled = true;
+                input.classList.add('disabled');
+            });
+        }
+
+        function enableStackInputs() {
+            stackInputs.forEach(input => {
+                input.disabled = false;
+                input.classList.remove('disabled');
+            });
+        }
+
+        function showTimerMessage(message) {
+            const timerMessage = document.getElementById('timerMessage');
+            timerMessage.innerHTML = '時間切れです。BBを更新してください。<br>（リセットボタンを押すとスタック数変更できます）';
+            timerMessage.style.display = 'block';
+        }
+
+        function clearTimerMessage() {
+            const timerMessage = document.getElementById('timerMessage');
+            timerMessage.textContent = '';
+            timerMessage.style.display = 'none';
+        }
+
+        updateTimerDisplay();
     </script>
 </body>
 </html>
