@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DJDJTVCHBJ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DJDJTVCHBJ');
+</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ポーカースタック管理</title>
@@ -132,6 +141,12 @@
         .hidden {
             display: none;
         }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+        }
         @media (max-width: 600px) {
             table, thead, tbody, th, td, tr {
                 display: block;
@@ -214,6 +229,11 @@
             <button onclick="resetTimer()">リセット</button>
         </div>
         <div id="timerMessage"></div>
+
+        <!-- フッターの追加 -->
+        <div class="footer">
+            ご意見・ご要望がございましたら、<a href="https://x.com/thunk_po" target="_blank" rel="noopener noreferrer">Twitter</a>までご連絡ください。
+        </div>
     </div>
 
     <script>
