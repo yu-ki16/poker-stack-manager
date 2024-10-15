@@ -1,19 +1,40 @@
-<!DOCTYPE html>
 <html lang="ja">
 <head>
     <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-DJDJTVCHBJ"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-DJDJTVCHBJ');
-</script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-DJDJTVCHBJ"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-DJDJTVCHBJ');
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ポーカースタック管理</title>
+    <title>ポーカーツール</title>
     <style>
+.instructions {
+    background-color: #f8f8f8;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+.instructions h4 {
+    margin-top: 0;
+    color: #333;
+}
+.instructions ol {
+    padding-left: 20px;
+}
+.instructions ul {
+    padding-left: 20px;
+}
+.instructions li {
+    margin-bottom: 10px;
+}
+.instructions p {
+    margin-bottom: 0;
+}
         * {
             box-sizing: border-box;
         }
@@ -33,11 +54,15 @@
             max-width: 800px;
             margin: 0 auto;
         }
-        h1 {
+        h1, h2 {
             color: #2c3e50;
             text-align: center;
             margin-bottom: 20px;
             font-size: 24px;
+        }
+        h2 {
+            font-size: 20px;
+            margin-top: 30px;
         }
         .input-group {
             margin-bottom: 15px;
@@ -147,7 +172,95 @@
             font-size: 14px;
             color: #666;
         }
+        .bet-inputs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .bet-input-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .seat-select {
+            width: 80px;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .bb-display {
+            font-size: 0.9em;
+            color: #666;
+            min-width: 60px;
+        }
+        .pot-display {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            background-color: #e8f5e9;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .street {
+            margin-bottom: 30px;
+        }
+        .calculator-section {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f8f8;
+            border-radius: 8px;
+        }
+        .result-display {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .tab-container {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            background-color: #ecf0f1;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .tab.active {
+            background-color: #3498db;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        #clear-actions {
+            background-color: #e74c3c;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+        #clear-actions:hover {
+            background-color: #c0392b;
+        }
         @media (max-width: 600px) {
+            .bet-inputs {
+                grid-template-columns: 1fr;
+            }
+            .bet-input-group {
+                flex-wrap: wrap;
+            }
+            .seat-select, input[type="number"] {
+                width: calc(50% - 5px);
+            }
+            .bb-display {
+                width: 100%;
+                text-align: right;
+            }
             table, thead, tbody, th, td, tr {
                 display: block;
             }
@@ -178,9 +291,17 @@
 </head>
 <body>
     <div class="container">
-        <h1>ポーカースタック管理</h1>
+        <h1>ポーカーツール</h1>
+<div class="tab-container">
+        <button class="tab active" onclick="openTab(event, 'stack-management')">スタック管理</button>
+        <button class="tab" onclick="openTab(event, 'pot-calculator')">ポット計算機</button>
+        <button class="tab" onclick="openTab(event, 'win-rate-calculator')">勝率計算</button>
+    </div>
+
+    <div id="stack-management" class="tab-content active">
+        <h2>ポーカースタック管理</h2>
         <div id="viewToggle">
-            <button onclick="switchView('single')">【自分用】</button>
+            <button onclick="switchView('single')" class="active">【自分用】</button>
             <button onclick="switchView('multiple')">【複数人用】</button>
         </div>
         <div class="input-group">
@@ -191,7 +312,7 @@
             <label for="averageStack">平均スタック:</label>
             <input type="number" id="averageStack" placeholder="平均スタックを入力">
         </div>
-        <div id="singleUserView" class="hidden">
+        <div id="singleUserView">
             <div class="input-group">
                 <label for="myStack">自分のスタック:</label>
                 <input type="number" id="myStack" placeholder="自分のスタックを入力">
@@ -201,7 +322,7 @@
                 <p>平均比: <span id="myAverageRatio">-</span></p>
             </div>
         </div>
-        <table id="multipleUserView">
+        <table id="multipleUserView" class="hidden">
             <thead>
                 <tr>
                     <th>シート</th>
@@ -229,176 +350,543 @@
             <button onclick="resetTimer()">リセット</button>
         </div>
         <div id="timerMessage"></div>
+    </div>
+<div id="pot-calculator" class="tab-content">
+        <h2>ポーカーポット計算機</h2>
+<div class="instructions">
+    <h4>ポーカーポット計算機の使い方</h4>
+    <ol>
+        <li>まず、SB（スモールブラインド）、BB（ビッグブラインド）、アンティを入力してください。これらは必須項目です。</li>
+        <li>各ストリート（プリフロップ、フロップ、ターン、リバー）でベットがあった場合：
+            <ul>
+                <li>シートNo.を選択し、その後ベット額を入力してください。</li>
+                <li>プリフロップでSBとBBのプレイヤーがアクションを起こした場合は、ブラインド分が自動的に考慮されるので、実際のベット額をそのまま入力してください。</li>
+            </ul>
+        </li>
+        <li>各ストリートに3つ以上の入力欄が必要な場合は、「入力欄を追加」ボタンをクリックしてください。</li>
+        <li>新しいハンドを始める際は「アクションをクリア」ボタンを使用してください。</li>
+    </ol>
+    <p><strong>注意：</strong> 現在、サイドポットの計算には対応していません。</p>
+</div>
+        <div id="blinds-and-ante">
+            <h3>ブラインドとアンティ</h3>
+            <div class="bet-inputs">
+                <div class="bet-input-group">
+                    <select class="seat-select" id="sb-seat" onchange="updateAvailableSeats(); enableBetInput(this, 'small-blind')">
+                        <option value="">SB</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                    </select>
+                    <input type="number" id="small-blind" placeholder="SB" oninput="calculateAllPots()" disabled>
+                    <span class="bb-display" id="sb-bb"></span>
+                </div>
+                <div class="bet-input-group">
+                    <select class="seat-select" id="bb-seat" onchange="updateAvailableSeats(); enableBetInput(this, 'big-blind')">
+                        <option value="">BB</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                    </select>
+                    <input type="number" id="big-blind" placeholder="BB" oninput="calculateAllPots()" disabled>
+                    <span class="bb-display" id="bb-bb"></span>
+                </div>
+                <div class="bet-input-group">
+                    <input type="number" id="ante" placeholder="アンティ" oninput="calculateAllPots()">
+                    <span class="bb-display" id="ante-bb"></span>
+                </div>
+            </div>
+        </div>
 
-        <!-- フッターの追加 -->
-        <div class="footer">
-            ご意見・ご要望がございましたら、<a href="https://x.com/thunk_po" target="_blank" rel="noopener noreferrer">Twitter</a>までご連絡ください。
+        <button id="clear-actions" onclick="clearAllActions()">アクションをクリア</button>
+
+        <div id="preflop" class="street">
+            <h3>プリフロップアクション</h3>
+            <div class="bet-inputs" id="preflop-bets">
+                <!-- JavaScriptで動的に生成 -->
+            </div>
+            <button onclick="addInput('preflop')">入力欄を追加</button>
+            <div class="pot-display">
+                <p>プリフロップポット: <span id="preflop-pot">0</span> (<span id="preflop-pot-bb">0 BB</span>)</p>
+            </div>
+        </div>
+
+        <div id="flop" class="street">
+            <h3>フロップアクション</h3>
+            <div class="bet-inputs" id="flop-bets">
+                <!-- JavaScriptで動的に生成 -->
+            </div>
+            <button onclick="addInput('flop')">入力欄を追加</button>
+            <div class="pot-display">
+                <p>フロップポット: <span id="flop-pot">0</span> (<span id="flop-pot-bb">0 BB</span>)</p>
+            </div>
+        </div>
+
+        <div id="turn" class="street">
+            <h3>ターンアクション</h3>
+            <div class="bet-inputs" id="turn-bets">
+                <!-- JavaScriptで動的に生成 -->
+            </div>
+            <button onclick="addInput('turn')">入力欄を追加</button>
+            <div class="pot-display">
+                <p>ターンポット: <span id="turn-pot">0</span> (<span id="turn-pot-bb">0 BB</span>)</p>
+            </div>
+        </div>
+
+        <div id="river" class="street">
+            <h3>リバーアクション</h3>
+            <div class="bet-inputs" id="river-bets">
+                <!-- JavaScriptで動的に生成 -->
+            </div>
+            <button onclick="addInput('river')">入力欄を追加</button>
+            <div class="pot-display">
+                <p>リバーポット: <span id="river-pot">0</span> (<span id="river-pot-bb">0 BB</span>)</p>
+            </div>
         </div>
     </div>
 
-    <script>
-        let stackInputs = [];
-        let currentView = 'multiple';
+    <div id="win-rate-calculator" class="tab-content">
+        <h2>コールに必要な勝率計算</h2>
+        <div class="calculator-section">
+            <div class="input-group">
+                <input type="number" id="pot-size" placeholder="ポットサイズ" oninput="calculateWinRate()">
+                <input type="number" id="call-amount" placeholder="コール額" oninput="calculateWinRate()">
+            </div>
+            <div class="result-display">
+                <p>必要な勝率: <span id="required-win-rate">0%</span></p>
+            </div>
+            <table id="common-bets-table">
+                <thead>
+                    <tr>
+                        <th>ベットサイズ</th>
+                        <th>ベット額</th>
+                        <th>必要な勝率</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1/3 ポット</td>
+                        <td id="bet-amount-1-3">-</td>
+                        <td id="win-rate-1-3">-</td>
+                    </tr>
+                    <tr>
+                        <td>1/2 ポット</td>
+                        <td id="bet-amount-1-2">-</td>
+                        <td id="win-rate-1-2">-</td>
+                    </tr>
+                    <tr>
+                        <td>2/3 ポット</td>
+                        <td id="bet-amount-2-3">-</td>
+                        <td id="win-rate-2-3">-</td>
+                    </tr>
+                    <tr>
+                        <td>3/4 ポット</td>
+                        <td id="bet-amount-3-4">-</td>
+                        <td id="win-rate-3-4">-</td>
+                    </tr>
+                    <tr>
+                        <td>ポットサイズ</td>
+                        <td id="bet-amount-1">-</td>
+                        <td id="win-rate-1">-</td>
+                    </tr>
+                    <tr>
+                        <td>1.5倍ポット</td>
+                        <td id="bet-amount-1-5">-</td>
+                        <td id="win-rate-1-5">-</td>
+                    </tr>
+                    <tr>
+                        <td>2倍ポット</td>
+                        <td id="bet-amount-2">-</td>
+                        <td id="win-rate-2">-</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- フッターの追加 -->
+    <div class="footer">
+        ご意見・ご要望がございましたら、<a href="https://x.com/thunk_po" target="_blank" rel="noopener noreferrer">Twitter</a>までご連絡ください。
+    </div>
+</div>
+
+<script>
+    let stackInputs = [];
+    let currentView = 'single';
+    let activePlayers = new Set();
+    
+    // テーブルの行を動的に生成
+    const tableBody = document.querySelector('#multipleUserView tbody');
+    for (let i = 1; i <= 9; i++) {
+        const row = tableBody.insertRow();
+        row.innerHTML = `
+            <td data-label="シート">シート${i}</td>
+            <td data-label="スタック"><input type="number" id="stack${i}" placeholder="スタック額を入力"></td>
+            <td data-label="BB数" id="bbCount${i}"></td>
+            <td data-label="平均比" id="averageRatio${i}"></td>
+            <td data-label="メモ"><textarea id="memo${i}" placeholder="メモを入力"></textarea></td>
+        `;
+        stackInputs.push(document.getElementById(`stack${i}`));
+    }
+function openTab(evt, tabName) {
+        var i, tabContent, tabLinks;
+        tabContent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabContent.length; i++) {
+            tabContent[i].style.display = "none";
+        }
+        tabLinks = document.getElementsByClassName("tab");
+        for (i = 0; i < tabLinks.length; i++) {
+            tabLinks[i].className = tabLinks[i].className.replace(" active", "");
+        }
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.className += " active";
+    }
+
+    function switchView(view) {
+        const singleUserView = document.getElementById('singleUserView');
+        const multipleUserView = document.getElementById('multipleUserView');
+        if (view === 'single') {
+            singleUserView.classList.remove('hidden');
+            multipleUserView.classList.add('hidden');
+            currentView = 'single';
+        } else {
+            singleUserView.classList.add('hidden');
+            multipleUserView.classList.remove('hidden');
+            currentView = 'multiple';
+        }
+    }
+
+    function calculateAll() {
+        if (currentView === 'single') {
+            calculateSingleUser();
+        } else {
+            calculateMultipleUsers();
+        }
+    }
+
+    function calculateSingleUser() {
+        const bb = parseFloat(document.getElementById('bb').value);
+        const averageStack = parseFloat(document.getElementById('averageStack').value);
+        const myStack = parseFloat(document.getElementById('myStack').value);
         
-        // テーブルの行を動的に生成
-        const tableBody = document.querySelector('#multipleUserView tbody');
+        if (isNaN(bb) || bb === 0 || isNaN(averageStack) || averageStack === 0 || isNaN(myStack)) {
+            alert('有効な値を入力してください。');
+            return;
+        }
+        
+        const bbCount = myStack / bb;
+        const averageRatio = myStack / averageStack;
+        
+        document.getElementById('myBBCount').textContent = bbCount.toFixed(2);
+        document.getElementById('myAverageRatio').textContent = averageRatio.toFixed(2) + 'x';
+    }
+
+    function calculateMultipleUsers() {
+        const bb = parseFloat(document.getElementById('bb').value);
+        const averageStack = parseFloat(document.getElementById('averageStack').value);
+        
+        if (isNaN(bb) || bb === 0 || isNaN(averageStack) || averageStack === 0) {
+            alert('有効なBB値と平均スタック値を入力してください。');
+            return;
+        }
+        
         for (let i = 1; i <= 9; i++) {
-            const row = tableBody.insertRow();
-            row.innerHTML = `
-                <td data-label="シート">シート${i}</td>
-                <td data-label="スタック"><input type="number" id="stack${i}" placeholder="スタック額を入力"></td>
-                <td data-label="BB数" id="bbCount${i}"></td>
-                <td data-label="平均比" id="averageRatio${i}"></td>
-                <td data-label="メモ"><textarea id="memo${i}" placeholder="メモを入力"></textarea></td>
-            `;
-            stackInputs.push(document.getElementById(`stack${i}`));
-        }
-
-        function switchView(view) {
-            const singleUserView = document.getElementById('singleUserView');
-            const multipleUserView = document.getElementById('multipleUserView');
-            if (view === 'single') {
-                singleUserView.classList.remove('hidden');
-                multipleUserView.classList.add('hidden');
-                currentView = 'single';
+            const stack = parseFloat(document.getElementById(`stack${i}`).value);
+            const bbCountElement = document.getElementById(`bbCount${i}`);
+            const averageRatioElement = document.getElementById(`averageRatio${i}`);
+            
+            if (isNaN(stack)) {
+                bbCountElement.textContent = '-';
+                averageRatioElement.textContent = '-';
             } else {
-                singleUserView.classList.add('hidden');
-                multipleUserView.classList.remove('hidden');
-                currentView = 'multiple';
+                const bbCount = stack / bb;
+                const averageRatio = stack / averageStack;
+                bbCountElement.textContent = bbCount.toFixed(2);
+                averageRatioElement.textContent = averageRatio.toFixed(2) + 'x';
             }
         }
+    }
 
-        function calculateAll() {
-            if (currentView === 'single') {
-                calculateSingleUser();
-            } else {
-                calculateMultipleUsers();
-            }
+    // タイマー機能
+    let timerInterval;
+    let timeLeft = 20 * 60; // デフォルトは20分
+
+    function updateTimerDisplay() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        document.getElementById('timer').textContent = 
+            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    function setTimer() {
+        const minutes = parseInt(document.getElementById('timerMinutes').value);
+        if (isNaN(minutes) || minutes < 1) {
+            alert('有効な分数を入力してください。');
+            return;
         }
+        timeLeft = minutes * 60;
+        updateTimerDisplay();
+    }
 
-        function calculateSingleUser() {
-            const bb = parseFloat(document.getElementById('bb').value);
-            const averageStack = parseFloat(document.getElementById('averageStack').value);
-            const myStack = parseFloat(document.getElementById('myStack').value);
-            
-            if (isNaN(bb) || bb === 0 || isNaN(averageStack) || averageStack === 0 || isNaN(myStack)) {
-                alert('有効な値を入力してください。');
-                return;
-            }
-            
-            const bbCount = myStack / bb;
-            const averageRatio = myStack / averageStack;
-            
-            document.getElementById('myBBCount').textContent = bbCount.toFixed(2);
-            document.getElementById('myAverageRatio').textContent = averageRatio.toFixed(2) + 'x';
-        }
-
-        function calculateMultipleUsers() {
-            const bb = parseFloat(document.getElementById('bb').value);
-            const averageStack = parseFloat(document.getElementById('averageStack').value);
-            
-            if (isNaN(bb) || bb === 0 || isNaN(averageStack) || averageStack === 0) {
-                alert('有効なBB値と平均スタック値を入力してください。');
-                return;
-            }
-            
-            for (let i = 1; i <= 9; i++) {
-                const stack = parseFloat(document.getElementById(`stack${i}`).value);
-                const bbCountElement = document.getElementById(`bbCount${i}`);
-                const averageRatioElement = document.getElementById(`averageRatio${i}`);
-                
-                if (isNaN(stack)) {
-                    bbCountElement.textContent = '-';
-                    averageRatioElement.textContent = '-';
+    function startTimer() {
+        if (!timerInterval) {
+            timerInterval = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    updateTimerDisplay();
                 } else {
-                    const bbCount = stack / bb;
-                    const averageRatio = stack / averageStack;
-                    bbCountElement.textContent = bbCount.toFixed(2);
-                    averageRatioElement.textContent = averageRatio.toFixed(2) + 'x';
+                    clearInterval(timerInterval);
+                    showTimerMessage('時間切れです。BBを更新してください。');
+                    disableStackInputs();
+                }
+            }, 1000);
+        }
+    }
+
+    function pauseTimer() {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+
+    function resetTimer() {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        setTimer();
+        enableStackInputs();
+        clearTimerMessage();
+    }
+
+    function disableStackInputs() {
+        stackInputs.forEach(input => {
+            input.disabled = true;
+            input.classList.add('disabled');
+        });
+        document.getElementById('myStack').disabled = true;
+        document.getElementById('myStack').classList.add('disabled');
+    }
+
+    function enableStackInputs() {
+        stackInputs.forEach(input => {
+            input.disabled = false;
+            input.classList.remove('disabled');
+        });
+        document.getElementById('myStack').disabled = false;
+        document.getElementById('myStack').classList.remove('disabled');
+    }
+
+    function showTimerMessage(message) {
+        const timerMessage = document.getElementById('timerMessage');
+        timerMessage.innerHTML = '時間切れです。BBを更新してください。<br>（リセットボタンを押すとスタック数変更できます）';
+        timerMessage.style.display = 'block';
+    }
+
+    function clearTimerMessage() {
+        const timerMessage = document.getElementById('timerMessage');
+        timerMessage.textContent = '';
+        timerMessage.style.display = 'none';
+    }
+
+    // ポーカーポット計算機の機能
+    function updateAvailableSeats() {
+        sbPlayerSeat = document.getElementById('sb-seat').value;
+        bbPlayerSeat = document.getElementById('bb-seat').value;
+        activePlayers.clear();
+        if (sbPlayerSeat) activePlayers.add(sbPlayerSeat);
+        if (bbPlayerSeat) activePlayers.add(bbPlayerSeat);
+        initializeStreetInputs();
+        calculateAllPots();
+    }
+
+    function initializeStreetInputs() {
+        ['preflop', 'flop', 'turn', 'river'].forEach(street => {
+            const container = document.getElementById(`${street}-bets`);
+            container.innerHTML = '';
+            for (let i = 0; i < 3; i++) {
+                addInput(street);
+            }
+        });
+    }
+
+    function addInput(street) {
+        const container = document.querySelector(`#${street}-bets`);
+        const inputGroup = document.createElement('div');
+        inputGroup.className = 'bet-input-group';
+        
+        const select = document.createElement('select');
+        select.className = 'seat-select';
+        select.innerHTML = '<option value="">シート</option>';
+        
+        for (let i = 1; i <= 9; i++) {
+            const option = document.createElement('option');
+            option.value = i.toString();
+            option.textContent = i;
+            select.appendChild(option);
+        }
+        
+        select.onchange = function() {
+            enableBetInput(this);
+            calculateAllPots();
+        };
+        
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.placeholder = 'ベット額';
+        input.disabled = true;
+        input.oninput = calculateAllPots;
+        
+        const bbDisplay = document.createElement('span');
+        bbDisplay.className = 'bb-display';
+        
+        inputGroup.appendChild(select);
+        inputGroup.appendChild(input);
+        inputGroup.appendChild(bbDisplay);
+        container.appendChild(inputGroup);
+    }
+function calculateStreetPot(street) {
+        const inputs = document.querySelectorAll(`#${street}-bets input`);
+        let streetPot = 0;
+
+        inputs.forEach(input => {
+            const seat = input.previousElementSibling.value;
+            let amount = parseInt(input.value) || 0;
+            if (street === 'preflop') {
+                if (seat === sbPlayerSeat) {
+                    const sbAmount = parseInt(document.getElementById('small-blind').value) || 0;
+                    amount = Math.max(0, amount - sbAmount);
+                } else if (seat === bbPlayerSeat) {
+                    const bbAmount = parseInt(document.getElementById('big-blind').value) || 0;
+                    amount = Math.max(0, amount - bbAmount);
                 }
             }
+            streetPot += amount;
+        });
+
+        if (street === 'preflop') {
+            const smallBlind = parseInt(document.getElementById('small-blind').value) || 0;
+            const bigBlind = parseInt(document.getElementById('big-blind').value) || 0;
+            const ante = parseInt(document.getElementById('ante').value) || 0;
+            streetPot += smallBlind + bigBlind + ante;
         }
 
-        // タイマー機能
-        let timerInterval;
-        let timeLeft = 20 * 60; // デフォルトは20分
+        return streetPot;
+    }
 
-        function updateTimerDisplay() {
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            document.getElementById('timer').textContent = 
-                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        }
+    function calculateAllPots() {
+        const bigBlind = parseInt(document.getElementById('big-blind').value) || 1;
+        const preflopPot = calculateStreetPot('preflop');
+        const flopPot = calculateStreetPot('flop');
+        const turnPot = calculateStreetPot('turn');
+        const riverPot = calculateStreetPot('river');
 
-        function setTimer() {
-            const minutes = parseInt(document.getElementById('timerMinutes').value);
-            if (isNaN(minutes) || minutes < 1) {
-                alert('有効な分数を入力してください。');
-                return;
+        document.getElementById('preflop-pot').textContent = preflopPot;
+        document.getElementById('preflop-pot-bb').textContent = (preflopPot / bigBlind).toFixed(2) + ' BB';
+
+        document.getElementById('flop-pot').textContent = preflopPot + flopPot;
+        document.getElementById('flop-pot-bb').textContent = ((preflopPot + flopPot) / bigBlind).toFixed(2) + ' BB';
+
+        document.getElementById('turn-pot').textContent = preflopPot + flopPot + turnPot;
+        document.getElementById('turn-pot-bb').textContent = ((preflopPot + flopPot + turnPot) / bigBlind).toFixed(2) + ' BB';
+
+        document.getElementById('river-pot').textContent = preflopPot + flopPot + turnPot + riverPot;
+        document.getElementById('river-pot-bb').textContent = ((preflopPot + flopPot + turnPot + riverPot) / bigBlind).toFixed(2) + ' BB';
+
+        updateBBDisplays(bigBlind);
+    }
+
+    function updateBBDisplays(bbValue) {
+        const inputs = document.querySelectorAll('input[type="number"]');
+        inputs.forEach(input => {
+            const value = parseInt(input.value) || 0;
+            const bbDisplay = input.nextElementSibling;
+            if (bbDisplay && bbDisplay.classList.contains('bb-display')) {
+                bbDisplay.textContent = (value / bbValue).toFixed(2) + ' BB';
             }
-            timeLeft = minutes * 60;
-            updateTimerDisplay();
-        }
+        });
+    }
 
-        function startTimer() {
-            if (!timerInterval) {
-                timerInterval = setInterval(() => {
-                    if (timeLeft > 0) {
-                        timeLeft--;
-                        updateTimerDisplay();
-                    } else {
-                        clearInterval(timerInterval);
-                        showTimerMessage('時間切れです。BBを更新してください。');
-                        disableStackInputs();
-                    }
-                }, 1000);
+    function enableBetInput(select, inputId) {
+        const input = inputId ? document.getElementById(inputId) : select.nextElementSibling;
+        input.disabled = !select.value;
+    }
+
+    function clearAllActions() {
+        if (confirm('全てのアクション入力をクリアしますか？')) {
+            ['preflop', 'flop', 'turn', 'river'].forEach(street => {
+                const inputs = document.querySelectorAll(`#${street}-bets input[type="number"]`);
+                inputs.forEach(input => input.value = '');
+                
+                const selects = document.querySelectorAll(`#${street}-bets select`);
+                selects.forEach(select => select.selectedIndex = 0);
+                
+                // 追加された入力欄を削除し、初期状態（3つ）に戻す
+                const container = document.getElementById(`${street}-bets`);
+                while (container.children.length > 3) {
+                    container.removeChild(container.lastChild);
+                }
+            });
+
+            calculateAllPots();
+        }
+    }
+
+    // コールに必要な勝率計算の機能
+    function calculateWinRate() {
+        const potSize = parseFloat(document.getElementById('pot-size').value) || 0;
+        const callAmount = parseFloat(document.getElementById('call-amount').value) || 0;
+
+        if (potSize > 0) {
+            updateCommonBetsTable(potSize);
+            
+            if (callAmount > 0) {
+                const winRate = (callAmount / (potSize + callAmount)) * 100;
+                document.getElementById('required-win-rate').textContent = winRate.toFixed(2) + '%';
+            } else {
+                document.getElementById('required-win-rate').textContent = '0%';
             }
+        } else {
+            clearCommonBetsTable();
+            document.getElementById('required-win-rate').textContent = '0%';
         }
+    }
 
-        function pauseTimer() {
-            clearInterval(timerInterval);
-            timerInterval = null;
-        }
+    function updateCommonBetsTable(potSize) {
+        const betSizes = [1/3, 1/2, 2/3, 3/4, 1, 1.5, 2];
+        const ids = ['1-3', '1-2', '2-3', '3-4', '1', '1-5', '2'];
 
-        function resetTimer() {
-            clearInterval(timerInterval);
-            timerInterval = null;
-            setTimer();
-            enableStackInputs();
-            clearTimerMessage();
-        }
+        betSizes.forEach((size, index) => {
+            const betAmount = potSize * size;
+            const winRate = (betAmount / (potSize + betAmount)) * 100;
+            document.getElementById(`bet-amount-${ids[index]}`).textContent = Math.round(betAmount);
+            document.getElementById(`win-rate-${ids[index]}`).textContent = winRate.toFixed(2) + '%';
+        });
+    }
 
-        function disableStackInputs() {
-            stackInputs.forEach(input => {
-                input.disabled = true;
-                input.classList.add('disabled');
-            });
-            document.getElementById('myStack').disabled = true;
-            document.getElementById('myStack').classList.add('disabled');
-        }
+    function clearCommonBetsTable() {
+        const ids = ['1-3', '1-2', '2-3', '3-4', '1', '1-5', '2'];
+        ids.forEach(id => {
+            document.getElementById(`bet-amount-${id}`).textContent = '-';
+            document.getElementById(`win-rate-${id}`).textContent = '-';
+        });
+    }
 
-        function enableStackInputs() {
-            stackInputs.forEach(input => {
-                input.disabled = false;
-                input.classList.remove('disabled');
-            });
-            document.getElementById('myStack').disabled = false;
-            document.getElementById('myStack').classList.remove('disabled');
-        }
+    // イベントリスナーの追加
+    document.getElementById('pot-size').addEventListener('input', calculateWinRate);
+    document.getElementById('call-amount').addEventListener('input', calculateWinRate);
 
-        function showTimerMessage(message) {
-            const timerMessage = document.getElementById('timerMessage');
-            timerMessage.innerHTML = '時間切れです。BBを更新してください。<br>（リセットボタンを押すとスタック数変更できます）';
-            timerMessage.style.display = 'block';
-        }
-
-        function clearTimerMessage() {
-            const timerMessage = document.getElementById('timerMessage');
-            timerMessage.textContent = '';
-            timerMessage.style.display = 'none';
-        }
-
-        updateTimerDisplay();
-    </script>
-</body>
-</html>
+    // 初期化
+    updateAvailableSeats();
+    calculateAllPots();
+    switchView('single');
+</script>
